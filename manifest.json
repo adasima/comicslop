@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "コミチ ミッション自動化",
+  "version": "1.1.0",
+  "description": "コミチプラットフォームの無料チケット取得ミッションとガチャを自動化します",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+    "debugger"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "コミチ自動化を開く"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

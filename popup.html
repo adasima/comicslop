@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コミチ ミッション自動化</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary-color: #3b82f6;
+      --primary-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      --accent-color: #10b981;
+      --accent-gradient: linear-gradient(135deg, #10b981, #059669);
+      --stop-gradient: linear-gradient(135deg, #ef4444, #b91c1c);
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      /* タブとして開いた場合でも見やすいレスポンシブ幅 */
+      max-width: 600px;
+      min-width: 320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px;
+      font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 全体の背景もダーク */
+    html {
+      background-color: var(--bg-color);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .version {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .notice {
+      font-size: 11px;
+      color: var(--text-muted);
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 10px;
+      line-height: 1.5;
+    }
+
+    .notice strong {
+      color: #f59e0b;
+    }
+
+    .status-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .status-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-color);
+      transition: color 0.3s ease;
+    }
+
+    .status-value.running {
+      color: var(--primary-color);
+    }
+
+    .status-value.idle {
+      color: var(--text-muted);
+    }
+
+    .btn-main {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 13px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-main:active {
+      transform: translateY(0);
+    }
+
+    .btn-main:disabled {
+      background: var(--border-color);
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-main.stop-btn {
+      background: var(--stop-gradient);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-main.stop-btn:hover {
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .log-container {
+      background-color: #020617;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 300px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-entry {
+      line-height: 1.5;
+      word-break: break-all;
+    }
+
+    .log-entry.info    { color: #3b82f6; }
+    .log-entry.success { color: #10b981; }
+    .log-entry.warn    { color: #f59e0b; }
+    .log-entry.error   { color: #ef4444; }
+    .log-entry.system  { color: #94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>コミチ自動チケット獲得</h1>
+      <span class="version">v1.1.0</span>
+    </header>
+
+    <div class="notice">
+      <strong>使い方:</strong> コミチ系サイトの
+      <code>/mission</code> ページを開いた状態で「一括自動実行を開始」ボタンを押してください。
+    </div>
+
+    <div class="status-card">
+      <span class="status-title">現在のステータス</span>
+      <span id="status-val" class="status-value idle">待機中</span>
+    </div>
+
+    <button id="btn-start" class="btn-main">一括自動実行を開始</button>
+
+    <div class="log-container" id="log-box">
+      <div class="log-entry system">[システム] 準備完了。コミチのサイト上で実行してください。</div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

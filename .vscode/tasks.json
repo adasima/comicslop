@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Launch Chrome with Extension",
+      "type": "shell",
+      "command": "Start-Process 'chrome.exe' -ArgumentList '--load-extension=\"c:\\Users\\sonnp\\Desktop\\ai-workshop\\comicslop\"'",
+      "windows": {
+        "command": "Start-Process 'chrome.exe' -ArgumentList '--load-extension=\"c:\\Users\\sonnp\\Desktop\\ai-workshop\\comicslop\"'"
+      },
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
